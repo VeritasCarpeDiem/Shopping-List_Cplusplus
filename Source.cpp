@@ -5,100 +5,109 @@ using namespace std;
 
 struct User
 {
-	//array is treated as pointer
-	string* item = nullptr; //assign nullptr to pointer variable item
-	char reply{};//=0 //brace intialize
-	//int count;  //include this
+	string* item = nullptr; //array is treated as pointer
+	char reply{}; //brace intialize
+	int count = 0;
+	string tempItem="";
 };
 
-void displayMenu(User* Shopper, int count)
+void displayMenu(User* Shopper)
 {
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < Shopper->count; i++)
 	{
 		cout << "Item #" << i + 1 << ": " << Shopper->item[i] << endl;
 	}
 }
 
-void addItems(User* Shopper, int count)
+bool isItemDuplicate(User* Shopper); //function prototype
+
+void addItems(User* Shopper)
 {
 	cout << "Enter item name: ";
-	
-	string* temp = new string[count + 1];//add 1 to size of array every time user adds item
-	for (int i = 0; i < count; i++)// Copy all items from the old to the temp
+
+	string* temp = new string[Shopper->count + 1];//add 1 to size of pointer array every time user adds item
+
+	for (int i = 0; i < Shopper->count; i++)// Copy all items from the current list to the temp
 	{
-		temp[i] = Shopper->item[i];	
+		temp[i] = Shopper->item[i];
 	}
 	delete[] Shopper->item;
 	Shopper->item = temp;
-	 cin>>Shopper->item[count];
+
+	while (true) 
+	{
+		cin >> Shopper->tempItem;
+		if (isItemDuplicate(Shopper) ==false)
+		{
+			break;
+		}
+		cout << "Your item is a duplicate. Please Enter another item!" << endl;
+	}
+
+	Shopper->item[Shopper->count] = Shopper->tempItem;
+	Shopper->count++;
 }
 
-int removeItems(User* Shopper, int count)
+void removeItems(User* Shopper)
 {
 	cout << "Enter the name of your item to delete it: ";
-	string itemToDelete;
-	cin >> itemToDelete;
 
-	string* temp = new string[count - 1];
-	int j = 0;
-	for (int i = 0; i < count; i++)
+	cin >> Shopper->tempItem;
+
+	string* temp = new string[Shopper->count - 1];
+	int newItemCount = 0;
+	for (int i = 0; i < Shopper->count; i++)
 	{
-		if (Shopper->item[i] != itemToDelete)
+		if (Shopper->item[i] != Shopper->tempItem)
 		{
 			//temp[i-1] = Shopper->item[i]; //move the right item to the left by 1 index
-			//count--;
-			temp[j] = Shopper->item[i];
-			j++;
+			//Shopper->count--;
+			temp[newItemCount] = Shopper->item[i];
+			newItemCount++;
 		}
 	}
 	delete[] Shopper->item; //delete the old pointer 
+
 	Shopper->item = temp;
-	return count - 1;
+	Shopper->count--;
 }
 
-bool areItemsDuplicate(User Shopper, int count)
+bool isItemDuplicate(User* Shopper)
 {
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < Shopper->count; i++)
 	{
-		if (Shopper.item[i] == Shopper.item[i + 1])
+		if (Shopper->item[i] == Shopper->tempItem)
 		{
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+		
 	}
 	return false;
 }
 
 void main()
 {
-	int count = 0;
-	User Shopper;
-	string* item=nullptr;
-	//Shopper.item = new string[0];
+	User* Shopper = new User();
 	do
 	{
-		addItems(&Shopper, count); //add items to list
-		count++;
-		if (count > 1)
-		{
-			displayMenu(&Shopper, count);
-			cout << "Do you want to delete any items? (Y/N)"<< endl;
-			cin >> Shopper.reply;
+		addItems(Shopper); //add items to list
 
-			if (Shopper.reply == 'Y' || Shopper.reply == 'y')
+		if (Shopper->count > 1)
+		{
+			displayMenu(Shopper);
+			cout << "Do you want to delete any items? (Y/N)" << endl;
+			cin >> Shopper->reply;
+
+			if (Shopper->reply == 'Y' || Shopper->reply == 'y')
 			{
-				removeItems(&Shopper, count); //delete items
-				count--;
+				removeItems(Shopper); //delete item
+
 			}
 		}
-		displayMenu(&Shopper, count); //display item list
+		displayMenu(Shopper); //display item list
 
 		cout << "Do you want to enter another item? (Y/N)" << endl;
-		cin >> Shopper.reply;
-		cout << endl;
+		cin >> Shopper->reply;
 
-	} while (Shopper.reply == 'Y' || Shopper.reply == 'y');
+	} while (Shopper->reply == 'Y' || Shopper->reply == 'y');
 }
